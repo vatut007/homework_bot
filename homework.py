@@ -34,19 +34,21 @@ HOMEWORK_STATUSES = {
 
 class PracticumException(Exception):
     """Исключения бота."""
+
     pass
 
 
 def send_message(bot, message):
-    '''Отправляет сообщение в Telegram чат,
-    определяемый переменной окружения TELEGRAM_CHAT_ID'''
+    """Отправляет сообщение в Telegram.
+    Чат определяемый переменной окружения TELEGRAM_CHAT_ID.
+    """
     log = message.replace('\n', '')
     logging.info(f"Отправка сообщения в телеграм: {log}")
     bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
 
 
 def get_api_answer(current_timestamp):
-    '''Делает запрос к единственному эндпоинту API-сервиса'''
+    """Делает запрос к единственному эндпоинту API-сервиса."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
@@ -102,8 +104,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    '''Извлекает из информации о конкретной
-    домашней работе статус этой работы.'''
+    """Извлекает статус домашней работы."""
     logging.debug(f"Парсим домашнее задание: {homework}")
     homework_name = homework['homework_name']
     homework_status = homework['status']
@@ -116,8 +117,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    '''Проверяет доступность переменных окружения,
-    которые необходимы для работы программы'''
+    """Проверяет доступность переменных окружения."""
     if PRACTICUM_TOKEN is None or \
         TELEGRAM_TOKEN is None or \
             TELEGRAM_CHAT_ID is None:
