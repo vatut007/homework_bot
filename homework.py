@@ -92,7 +92,7 @@ def check_response(response):
     try:
         response['homeworks']
     except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу homeworks:{error}')   
+        logger.error(f'Ошибка доступа по ключу homeworks:{error}')
     if 'error' in response:
         if 'error' in response['error']:
             raise PracticumException(
@@ -118,7 +118,7 @@ def parse_status(homework):
     try:
         homework_status = homework.get('status')
     except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу status:{error}')   
+        logger.error(f'Ошибка доступа по ключу status:{error}')
     verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
         raise PracticumException(
