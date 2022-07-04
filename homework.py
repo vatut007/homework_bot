@@ -90,9 +90,9 @@ def check_response(response):
     """
     logging.debug("Проверка ответа API на корректность")
     try:
-        response['homework']
+        response['homeworks']
     except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу homeworks:{error}')
+        logger.error(f'Ошибка доступа по ключу homeworks:{error}')   
     if 'error' in response:
         if 'error' in response['error']:
             raise PracticumException(
@@ -110,20 +110,20 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлекает статус домашней работы."""
-    logging.debug(f"Парсим домашнее задание: {homework}")
+    logger.debug(f"Парсим домашнее задание: {homework}")
     try:
-        homework_name = homework['homework_name']
+        homework_name = homework.get('homework_name')
     except KeyError as error:
         logger.error(f'Ошибка доступа по ключу homeworks_name:{error}')
     try:
-        homework_status = homework['status']
+        homework_status = homework.get('status')
     except KeyError as error:
         logger.error(f'Ошибка доступа по ключу status:{error}')   
+    verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
         raise PracticumException(
             "Обнаружен новый статус, отсутствующий в списке!"
         )
-    verdict = HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
