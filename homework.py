@@ -9,8 +9,7 @@ import telegram
 import requests
 from dotenv import load_dotenv
 
-from exceptions import PracticumException
-from exceptions import SendMessageFailure
+from exceptions import PracticumException, SendMessageFailure
 
 load_dotenv()
 
@@ -70,7 +69,7 @@ def get_api_answer(current_timestamp):
         raise PracticumException(f"Не корректный тип данных {e}")
 
     if homework_statuses.status_code != HTTPStatus.OK:
-        logging.debug(homework_statuses.json())
+        logger.debug(homework_statuses.json())
         raise PracticumException(
             f"Ошибка {homework_statuses.status_code} practicum.yandex.ru")
 
@@ -80,7 +79,7 @@ def get_api_answer(current_timestamp):
         raise PracticumException(
             "Ответ от сервера должен быть в формате JSON"
         )
-    logging.info("Получен ответ от сервера")
+    logger.info("Получен ответ от сервера")
     return homework_statuses_json
 
 
@@ -88,7 +87,7 @@ def check_response(response):
     """Проверяет ответ API на корректность.
     При изменении статуса вызывает функцию анализа статуса.
     """
-    logging.debug("Проверка ответа API на корректность")
+    logger.debug("Проверка ответа API на корректность")
     try:
         response['homeworks']
     except KeyError as error:
@@ -104,21 +103,15 @@ def check_response(response):
         )
     if not isinstance(response['homeworks'], list):
         raise PracticumException("response['homeworks'] не является списком")
-    logging.debug("API проверен на корректность")
+    logger.debug("API проверен на корректность")
     return response['homeworks']
 
 
 def parse_status(homework):
     """Извлекает статус домашней работы."""
     logger.debug(f"Парсим домашнее задание: {homework}")
-    try:
-        homework_name = homework.get('homework_name')
-    except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу homeworks_name:{error}')
-    try:
-        homework_status = homework.get('status')
-    except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу status:{error}')
+    homework_name = homework.get('homework_name')
+    homework_status = homework.get('status')
     verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
         raise PracticumException(
@@ -129,9 +122,9 @@ def parse_status(homework):
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-    if PRACTICUM_TOKEN is None or (
-        TELEGRAM_TOKEN) is None or (
-            TELEGRAM_CHAT_ID) is None:
+    if (PRACTICUM_TOKEN
+            is None or TELEGRAM_TOKEN
+            is None or TELEGRAM_CHAT_ID is None):
         return False
     return True
 
@@ -139,25 +132,26 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        logging.critical('Отсутствует переменная(-ные) окружения')
+        logger.critical('Отсутствует переменная(-ные) окружения')
+        raise PracticumException('Отсутствует переменная(-ные) окружения')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            logging.info('Cписок домашних работ получен')
+            logger.info('Cписок домашних работ получен')
             homeworks = check_response(response)
-            logging.info('Cписок домашних работ получен')
+            logger.info('Cписок домашних работ получен')
             if len(homeworks) > 0:
                 send_message(bot, parse_status(homeworks[0]))
             else:
-                logging.info('Задания не обнаружены')
+                logger.info('Задания не обнаружены')
             current_timestamp = response['current_date']
             time.sleep(RETRY_TIME)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            logging.error(message)
+            logger.error(message)
             send_message(bot, message)
             time.sleep(RETRY_TIME)
         else:

@@ -32,15 +32,3 @@ python3 -m pip install --upgrade pip
 ```
 pip install -r requirements.txt
 ```
-
-Выполнить миграции:
-
-```
-python3 manage.py migrate
-```
-
-Запустить проект:
-
-```
-python3 manage.py runserver
-```
