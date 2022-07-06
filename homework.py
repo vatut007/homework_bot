@@ -9,7 +9,7 @@ import telegram
 import requests
 from dotenv import load_dotenv
 
-from exceptions import PracticumException, SendMessageFailure
+from exceptions import PracticumException
 
 load_dotenv()
 
@@ -45,7 +45,7 @@ def send_message(bot, message):
     logger.info(f"Отправка сообщения в телеграм: {log}")
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-    except SendMessageFailure:
+    except telegram.TelegramError:
         logger.error('Сбой при отправке сообщения в чат')
 
 
@@ -112,11 +112,11 @@ def parse_status(homework):
     logger.debug(f"Парсим домашнее задание: {homework}")
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
-    verdict = HOMEWORK_STATUSES[homework_status]
     if homework_status not in HOMEWORK_STATUSES:
         raise PracticumException(
             "Обнаружен новый статус, отсутствующий в списке!"
         )
+    verdict = HOMEWORK_STATUSES[homework_status]
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
