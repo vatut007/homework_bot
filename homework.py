@@ -110,8 +110,8 @@ def check_response(response):
 def parse_status(homework):
     """Извлекает статус домашней работы."""
     logger.debug(f"Парсим домашнее задание: {homework}")
-    homework_name = homework.get('homework_name')
-    homework_status = homework.get('status')
+    homework_name = homework['homework_name']
+    homework_status = homework['status']
     if homework_status not in HOMEWORK_STATUSES:
         raise PracticumException(
             "Обнаружен новый статус, отсутствующий в списке!"
