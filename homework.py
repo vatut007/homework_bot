@@ -88,21 +88,26 @@ def check_response(response):
     При изменении статуса вызывает функцию анализа статуса.
     """
     logger.debug("Проверка ответа API на корректность")
-    try:
-        response['homeworks']
-    except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу homeworks:{error}')
+    if not isinstance(response, dict):
+        raise TypeError("response не является словарем")
+    if 'homeworks' not in response:
+        logger.error('Ошибка доступа по ключу homeworks')
+        raise PracticumException('Ошибка доступа по ключу homeworks')
     if 'error' in response:
         if 'error' in response['error']:
             raise PracticumException(
                 f"{response['error']['error']}"
+            )
+        else:
+            raise PracticumException(
+                f"{response['error']}"
             )
     if 'code' in response:
         raise PracticumException(
             f"{response['message']}"
         )
     if not isinstance(response['homeworks'], list):
-        raise PracticumException("response['homeworks'] не является списком")
+        raise TypeError("response['homeworks'] не является списком")
     logger.debug("API проверен на корректность")
     return response['homeworks']
 
@@ -113,7 +118,7 @@ def parse_status(homework):
     homework_name = homework['homework_name']
     homework_status = homework['status']
     if homework_status not in HOMEWORK_STATUSES:
-        raise PracticumException(
+        raise KeyError(
             "Обнаружен новый статус, отсутствующий в списке!"
         )
     verdict = HOMEWORK_STATUSES[homework_status]
