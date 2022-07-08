@@ -115,8 +115,14 @@ def check_response(response):
 def parse_status(homework):
     """Извлекает статус домашней работы."""
     logger.debug(f"Парсим домашнее задание: {homework}")
-    homework_name = homework['homework_name']
-    homework_status = homework['status']
+    try:
+        homework_name = homework['homework_name']
+    except KeyError as error:
+        logger.error(f'Ошибка доступа по ключу homeworks_name:{error}')
+    try:
+        homework_status = homework['status']
+    except KeyError as error:
+        logger.error(f'Ошибка доступа по ключу status:{error}')
     if homework_status not in HOMEWORK_STATUSES:
         raise KeyError(
             "Обнаружен новый статус, отсутствующий в списке!"

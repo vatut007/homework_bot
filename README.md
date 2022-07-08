@@ -32,4 +32,5 @@ python3 -m pip install --upgrade pip
 ```
 pip install -r requirements.txt
 ```
-Запустить файл homework.py
+Запустите программу командой
+python homework.py
