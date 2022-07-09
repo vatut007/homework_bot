@@ -47,6 +47,7 @@ def send_message(bot, message):
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
     except telegram.TelegramError:
         logger.error('Сбой при отправке сообщения в чат')
+        raise PracticumException('Сбой при отправке сообщения в чат')
 
 
 def get_api_answer(current_timestamp):
@@ -118,11 +119,16 @@ def parse_status(homework):
     try:
         homework_name = homework['homework_name']
     except KeyError as error:
-        logger.error(f'Ошибка доступа по ключу homeworks_name:{error}')
+        raise KeyError(
+            f'Ошибка доступа по ключу homeworks_name:{error}'
+        )
     try:
         homework_status = homework['status']
     except KeyError as error:
         logger.error(f'Ошибка доступа по ключу status:{error}')
+        raise KeyError(
+            f'Ошибка доступа по ключу status:{error}'
+        )
     if homework_status not in HOMEWORK_STATUSES:
         raise KeyError(
             "Обнаружен новый статус, отсутствующий в списке!"
